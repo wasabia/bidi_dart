@@ -8,16 +8,22 @@ part of bidi_dart;
  * @param {boolean} includeReverse - true if you want reverseMap in the output
  * @return {{map: Map<number, number>, reverseMap?: Map<number, number>}}
  */
-parseCharacterMap (encodedString, includeReverse) {
+parseCharacterMap (encodedString, bool includeReverse) {
   var radix = 36;
   var lastCode = 0;
   var map = new Map();
-  var reverseMap = includeReverse ?? new Map();
+
+  Map? reverseMap;
+
+  if(includeReverse) {
+    reverseMap = new Map();
+  }
+  
   var prevPair;
 
   visit(entry) {
     if (entry.indexOf('+') != -1) {
-      var i = entry;
+      var i = num.parse(entry);
       while ( i > 0 ) {
         i--;
         visit(prevPair);
@@ -31,7 +37,7 @@ parseCharacterMap (encodedString, includeReverse) {
       a = String.fromCharCode(lastCode += int.parse(a, radix: radix));
       b = String.fromCharCode(lastCode += int.parse(b, radix: radix));
       map[a] = b;
-      if(includeReverse) reverseMap[b] = a;
+      if(includeReverse) reverseMap![b] = a;
     }
   }
 

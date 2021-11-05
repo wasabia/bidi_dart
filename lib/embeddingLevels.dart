@@ -67,12 +67,12 @@ getEmbeddingLevels (string, baseDirection) {
   changeCharType(i, type) {
     var oldType = charTypes[i];
     charTypes[i] = type;
-    charTypeCounts["oldType"] = charTypeCounts["oldType"] - 1;
+    charTypeCounts[oldType] = charTypeCounts[oldType] - 1;
     if (oldType & NEUTRAL_ISOLATE_TYPES != 0) {
       charTypeCounts[NEUTRAL_ISOLATE_TYPES] = charTypeCounts[NEUTRAL_ISOLATE_TYPES] - 1;
     }
     charTypeCounts[type] = (charTypeCounts[type] ?? 0) + 1;
-    if (type & NEUTRAL_ISOLATE_TYPES) {
+    if (type & NEUTRAL_ISOLATE_TYPES == 1) {
       charTypeCounts[NEUTRAL_ISOLATE_TYPES] = (charTypeCounts[NEUTRAL_ISOLATE_TYPES] ?? 0) + 1;
     }
   }
@@ -140,7 +140,7 @@ getEmbeddingLevels (string, baseDirection) {
       paragraphs.add(paragraph);
     }
     if (charTypes[i] & TYPE_B != 0) {
-      paragraph.end = i;
+      paragraph["end"] = i;
       paragraph = null;
     }
   }
@@ -277,7 +277,7 @@ getEmbeddingLevels (string, baseDirection) {
 
         // End of Paragraph: 3.3.2 X8
         else if (charType & TYPE_B > 0) {
-          embedLevels[i] = paragraph.level;
+          embedLevels[i] = paragraph["level"];
         }
       }
 
@@ -418,7 +418,7 @@ getEmbeddingLevels (string, baseDirection) {
           if (charTypes[i] & TYPE_EN > 0) {
             for (var sj = si - 1; sj >= -1; sj--) {
               var prevCharType = sj == -1 ? sosType : charTypes[seqIndices[sj]];
-              if (prevCharType & STRONG_TYPES) {
+              if (prevCharType & STRONG_TYPES == 1) {
                 if (prevCharType == TYPE_AL) {
                   changeCharType(i, TYPE_AN);
                 }

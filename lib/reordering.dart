@@ -14,6 +14,8 @@ part of bidi_dart;
  */
 getReorderSegments(string, embeddingLevelsResult, int? start, int? end) {
   var strLen = string.length;
+
+
   start = Math.max(0, start == null ? 0 : start);
   end = Math.min(strLen - 1, end == null ? strLen - 1 : end);
 
@@ -27,13 +29,21 @@ getReorderSegments(string, embeddingLevelsResult, int? start, int? end) {
     var lineEnd = Math.min(end!, _pe);
     if (lineStart < lineEnd) {
       // Local slice for mutation
-      var lineLevels = embeddingLevelsResult["levels"].getRange(lineStart, lineEnd + 1).toList();
+      var _lineLevels = embeddingLevelsResult["levels"].getRange(lineStart, lineEnd + 1).toList();
+
+      Map lineLevels = Map();
+      _lineLevels.asMap().forEach((k,v) {
+        lineLevels[k] = v;
+      });
 
       // 3.4 L1.4: Reset any sequence of whitespace characters and/or isolate formatting characters at the
       // end of the line to the paragraph level.
       var i = lineEnd;
-      while ( i >= lineStart && (getBidiCharType(string[i]) & TRAILING_TYPES) != 0 ) {
+
+  
+      while ( (i >= lineStart) && ((getBidiCharType(string[i]) & TRAILING_TYPES) != 0) ) {
         i--;
+
         lineLevels[i] = paragraph["level"];
       }
 
@@ -41,16 +51,20 @@ getReorderSegments(string, embeddingLevelsResult, int? start, int? end) {
       // not actually present in the text, reverse any contiguous sequence of characters that are at that level or higher.
       var maxLevel = paragraph["level"];
       num minOddLevel = double.infinity;
-      for (var i = 0; i < lineLevels.length; i++) {
+
+      int lineLevelsLength = lineLevels.keys.reduce((curr, next) => curr > next ? curr: next) + 1;
+
+
+      for (var i = 0; i < lineLevelsLength; i++) {
         var level = lineLevels[i];
-        if (level > maxLevel) maxLevel = level;
-        if (level < minOddLevel) minOddLevel = level | 1;
+        if (level != null && level > maxLevel) maxLevel = level;
+        if (level != null && level < minOddLevel) minOddLevel = level | 1;
       }
       for (var lvl = maxLevel; lvl >= minOddLevel; lvl--) {
-        for (var i = 0; i < lineLevels.length; i++) {
+        for (var i = 0; i < lineLevelsLength; i++) {
           if (lineLevels[i] >= lvl) {
             var segStart = i;
-            while (i + 1 < lineLevels.length && lineLevels[i + 1] >= lvl) {
+            while (i + 1 < lineLevelsLength && lineLevels[i + 1] >= lvl) {
               i++;
             }
             if (i > segStart) {

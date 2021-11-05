@@ -7,7 +7,7 @@ part of bidi_dart;
 var openToClose, closeToOpen, canonical;
 
 bracketsParse () {
-  if (!openToClose) {
+  if (openToClose == null) {
     //const start = performance.now()
     var _dp = parseCharacterMap(bracketsData["pairs"], true);
     var map = _dp["map"];
@@ -22,15 +22,15 @@ bracketsParse () {
 
 openingToClosingBracket (char) {
   bracketsParse();
-  return openToClose.get(char) ?? null;
+  return openToClose[char];
 }
 
 closingToOpeningBracket (char) {
   bracketsParse();
-  return closeToOpen.get(char) ?? null;
+  return closeToOpen[char];
 }
 
 getCanonicalBracket (char) {
   bracketsParse();
-  return canonical.get(char) ?? null;
+  return canonical[char];
 }
